@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
+import NovoChamadoModal from './NovoChamadoModal';
+import { useAuth } from '../context/AuthContext';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -8,6 +10,9 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const { user, role } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const navItems = [
     { name: 'Painel Geral', icon: 'dashboard', path: '/' },
     { name: 'Meus Chamados', icon: 'confirmation_number', path: '/meus-chamados' },
@@ -45,25 +50,31 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </nav>
         
         <div className="sidebarFooter">
-          <button className="newTicketBtn">
+          <button className="newTicketBtn" onClick={() => setIsModalOpen(true)}>
             <span className="material-symbols-outlined">add</span>
             <span>Novo Chamado</span>
           </button>
           
-          {/* User Profile in Sidebar Bottom Left */}
           <div className="sidebarProfile">
-            <img 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5B7BHemjsrba5Zv1V57oNcU9CBt7Jp5K_DCdDVwjJ1AsCpdjnBLCi3GjDDo5qMOQSYK0Nzm-4448O6bdVxfsS0pNT3NBECPapVOaFVjBimiOcpQntQF7i9xVoSjPW6dyCwHlzKUZ2sMPsoAjcuBZk49CFf7I_1FaVhk0ytFvdzQnchHgcgDyMnDLhkVlnxDWbaJoPGKe1KKDzvgfIeBjtA2SFUn-I4Sz0L6NfHreyt6hz7lOkraoK91maoOD7Du8OPoZ-xRSwNqM" 
-              alt="User" 
-              className="sidebarProfileImg" 
-            />
+            <div className="sidebarProfileImg" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-primary)', color: 'white', fontWeight: 'bold' }}>
+              {user?.email?.charAt(0).toUpperCase()}
+            </div>
             <div className="sidebarProfileInfo">
-              <span className="sidebarProfileName">Ricardo Silva</span>
-              <span className="sidebarProfileRole">Engenheiro de Suporte</span>
+              <span className="sidebarProfileName">{user?.email?.split('@')[0]}</span>
+              <span className="sidebarProfileRole">{role === 'admin' ? 'Administrador' : 'Técnico'}</span>
             </div>
           </div>
         </div>
       </aside>
+
+      <NovoChamadoModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={() => {
+          setIsModalOpen(false);
+          window.location.reload();
+        }} 
+      />
     </>
   );
 };
