@@ -1,0 +1,15 @@
+.layoutMain {
+  margin-left: 240px;
+  padding-top: 64px;
+  min-height: 100vh;
+  padding-left: var(--spacing-container-padding);
+  padding-right: var(--spacing-container-padding);
+  padding-bottom: var(--spacing-container-padding);
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .layoutMain {
+    margin-left: 0;
+  }
+}

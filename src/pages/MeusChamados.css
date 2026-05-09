@@ -1,0 +1,186 @@
+.meusChamadosContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-top: 16px;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+@media (min-width: 768px) {
+  .pageHeader {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.pageSubtitle {
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+  margin-top: 4px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btnSecondary {
+  background-color: var(--color-surface-container-high);
+  border: 1px solid var(--color-outline-variant);
+  color: var(--color-on-surface);
+}
+
+.btnSecondary:hover {
+  background-color: var(--color-surface-container-highest);
+}
+
+.btnPrimary {
+  background-color: var(--color-on-secondary-fixed);
+  color: var(--color-on-primary);
+  font-weight: 700;
+}
+
+.btnPrimary:hover {
+  opacity: 0.9;
+}
+
+.tabs {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 4px;
+  width: max-content;
+}
+
+.tab {
+  padding: 8px 24px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background-color: var(--color-surface-container);
+}
+
+.tab.active {
+  background-color: var(--color-on-secondary-fixed);
+  color: var(--color-on-primary);
+  font-weight: 700;
+}
+
+.ticketList {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.listHeader {
+  display: grid;
+  grid-template-columns: 1fr 4fr 2fr 1fr 2fr 2fr;
+  gap: 16px;
+  padding: 12px 24px;
+  background-color: var(--color-surface-container-low);
+  border-bottom: 1px solid var(--color-outline-variant);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+.listRow {
+  display: grid;
+  grid-template-columns: 1fr 4fr 2fr 1fr 2fr 2fr;
+  gap: 16px;
+  padding: 16px 24px;
+  align-items: center;
+  border-bottom: 1px solid var(--color-outline-variant);
+  transition: background-color 0.2s;
+}
+
+.listRow:hover {
+  background-color: var(--color-surface-container-low);
+}
+
+.listRow:hover .rowActions {
+  opacity: 1;
+}
+
+.rowActions {
+  opacity: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.contextCards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+@media (min-width: 1024px) {
+  .contextCards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.contextCard {
+  background-color: var(--color-surface-container-low);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-outline-variant);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.contextIcon {
+  padding: 8px;
+  background-color: var(--color-on-primary);
+  color: var(--color-primary);
+  border-radius: 4px;
+}
+
+.contextTitle {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.contextDesc {
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+  line-height: 1.5;
+}

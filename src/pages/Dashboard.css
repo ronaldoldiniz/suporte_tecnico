@@ -1,0 +1,260 @@
+.dashboardSection {
+  padding-top: 16px;
+  margin-bottom: var(--spacing-section-margin);
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-gutter);
+}
+
+@media (min-width: 768px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .summaryGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.summaryCard {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  padding: 20px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.cardTitle {
+  color: var(--color-on-surface-variant);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.cardIcon {
+  color: var(--color-secondary);
+}
+
+.cardValue {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 40px;
+  letter-spacing: -0.02em;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.filterSection {
+  margin-bottom: var(--spacing-gutter);
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.filterList {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-component-gap-md);
+  white-space: nowrap;
+}
+
+.filterBtn {
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  padding: 10px 20px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.filterBtn:hover {
+  background-color: var(--color-secondary-container);
+  color: var(--color-on-secondary-fixed);
+}
+
+.filterBtn.active {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary);
+  font-weight: 600;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.tableSection {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tableHeader {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+}
+
+.tableTitle {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.tableActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tableActionBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-on-surface-variant);
+  font-size: 12px;
+}
+
+.tableActionBtn:hover {
+  color: var(--color-primary);
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.ticketsTable {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+
+.ticketsTable th {
+  padding: 16px 24px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  background-color: var(--color-surface-container-low);
+  border-bottom: 1px solid var(--color-outline-variant);
+  letter-spacing: 0.05em;
+}
+
+.ticketsTable td {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.ticketsTable tr:hover {
+  background-color: #F1F3F5;
+}
+
+.ticketId {
+  font-family: var(--font-family-mono);
+  font-size: 13px;
+}
+
+.ticketSubject {
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.ticketMeta {
+  font-size: 11px;
+  color: var(--color-on-surface-variant);
+  margin-top: 2px;
+}
+
+.tag {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.priority {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.rowActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.rowActionBtn {
+  padding: 8px;
+  color: var(--color-on-surface-variant);
+  border-radius: 4px;
+}
+
+.rowActionBtn:hover {
+  color: var(--color-primary);
+}
+
+.pagination {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+  background-color: var(--color-surface);
+}
+
+.paginationBtns {
+  display: flex;
+  gap: 8px;
+}
+
+.pageBtn {
+  padding: 8px 16px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 4px;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background-color: var(--color-surface-container-high);
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
