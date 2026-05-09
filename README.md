@@ -1,89 +1,54 @@
-# 🎫 Sistema de Suporte Técnico
+# TechSupport Enterprise Portal 🚀
 
-Sistema de gerenciamento de chamados de suporte técnico, desenvolvido com React, TypeScript e Supabase.
+Um portal de suporte técnico corporativo de alto desempenho construído com React, TypeScript, Vite e Supabase. Este sistema oferece gerenciamento completo de chamados com segurança baseada em níveis de acesso (RBAC - Role-Based Access Control).
 
-## 🚀 Tecnologias
+## 🛠 Tecnologias Utilizadas
 
-- **Frontend:** React 19 + TypeScript
-- **Build:** Vite
-- **Banco de dados:** Supabase (PostgreSQL)
-- **Estilização:** CSS Modules / CSS puro
-- **Deploy:** Vercel
+- **Frontend:** React 18, TypeScript, Vite, React Router DOM
+- **Estilização:** CSS3 Vanilla com variáveis dinâmicas (Design System) e ícones do Material Symbols
+- **Backend & Banco de Dados:** Supabase (PostgreSQL)
+- **Autenticação e Segurança:** Supabase Auth com Row Level Security (RLS)
+- **Hospedagem:** Vercel
 
 ## ✨ Funcionalidades
 
-- **Autenticação** com controle de acesso por perfil (Administrador, Técnico e Cliente)
-- **Dashboard** com visão geral dos chamados e métricas
-- **Meus Chamados** – abertura e acompanhamento de chamados por usuário
-- **Relatórios** com filtros e gráficos de desempenho
-- **Configurações** completas: perfil, usuários, categorias, status, sistema e segurança
-- **Sistema de busca** por título ou usuário nos chamados
-- **Filtro por status** em tempo real
-- **Foto de perfil** personalizável por usuário
-- **Logo e título do sistema** configuráveis pelo administrador
-- **Informações de ajuda** acessíveis a todos os usuários
+- **Dashboard Analítico:** Visualização de métricas, gráficos e listagem de status de chamados em tempo real.
+- **Autenticação Segura:** Login integrado com a plataforma Supabase.
+- **Sistema de Níveis de Acesso (RBAC):** 
+  - **Administrador:** Visualiza, gerencia e tem controle de todos os chamados de forma irrestrita.
+  - **Técnico:** Ambiente isolado. Visualiza apenas os chamados que foram designados a ele (`assigned_to`) ou abertos por ele (`created_by`).
+- **Abertura de Chamados:** Modal ágil direto na interface para abertura de chamados categorizados (TI, Elétrica, Telecom) com definição de nível de prioridade.
+- **SPA (Single Page Application):** Navegação rápida e suave entre painel, relatórios e configurações via React Router.
 
-## 📋 Perfis de Acesso
+## 🔐 Banco de Dados e Segurança (Supabase)
 
-| Perfil | Acesso |
-|---|---|
-| **Administrador** | Acesso completo a todo o sistema |
-| **Técnico** | Visualiza e atualiza chamados; sem acesso a configurações do sistema |
-| **Cliente** | Abre e acompanha apenas os próprios chamados |
+### Tabelas Principais
 
-## ⚙️ Configuração do ambiente
+1. **`tickets`**: Tabela central que armazena os chamados. Possui colunas essenciais como assunto, categoria, prioridade, status e as chaves estrangeiras `created_by` e `assigned_to` ligadas aos usuários autenticados.
+2. **`user_roles`**: Tabela auxiliar que liga o ID único de um usuário (vindo do `auth.users`) à sua respectiva _role_ de permissão no sistema (`admin` ou `tecnico`).
 
-### Pré-requisitos
+### Políticas de Segurança (Row Level Security - RLS)
 
-- Node.js 18+
-- Conta no [Supabase](https://supabase.com)
+A blindagem de dados é feita no banco de dados. Mesmo que um usuário mal intencionado tente forçar uma requisição via API, o Supabase bloqueia:
+- **Regra Admin**: Libera visualização global apenas se existir uma correspondência do UID logado marcando como `admin` na tabela de _roles_.
+- **Regra Técnico**: Libera leitura exclusivamente para as linhas de `tickets` onde o ID do usuário for igual à coluna `assigned_to` ou `created_by`.
 
-### Variáveis de ambiente
+## 🚀 Como rodar o projeto no seu computador
 
-Crie um arquivo `.env` na raiz do projeto:
-
-```env
-VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-VITE_SUPABASE_ANON_KEY=sua-chave-anonima
-```
-
-### Instalação
-
+1. Clone este repositório e instale as dependências:
 ```bash
 npm install
+```
+
+2. Crie um arquivo `.env` na raiz do repositório contendo suas chaves do banco de dados (encontradas no painel do Supabase):
+```env
+VITE_SUPABASE_URL=https://sua-url-do-supabase.supabase.co
+VITE_SUPABASE_ANON_KEY=sua-chave-anon-gigante-aqui
+```
+
+3. Inicie o ambiente de desenvolvimento local:
+```bash
 npm run dev
 ```
 
-### Acesso padrão
-
-- **Usuário:** `admin`
-- **Senha:** `admin`
-
-> ⚠️ Altere a senha do administrador após o primeiro acesso.
-
-## 🏗️ Estrutura do projeto
-
-```
-src/
-├── components/       # Componentes reutilizáveis (Sidebar, Header, Layout)
-├── pages/            # Páginas da aplicação
-├── lib/              # Configuração do Supabase e utilitários
-└── contexts/         # Contextos React (Auth, Settings)
-```
-
-## 📦 Scripts
-
-```bash
-npm run dev       # Inicia o servidor de desenvolvimento
-npm run build     # Gera o build de produção
-npm run preview   # Visualiza o build localmente
-npm run lint      # Executa o ESLint
-```
-
-## 🌐 Deploy
-
-O projeto está configurado para deploy na **Vercel**. Basta conectar o repositório e configurar as variáveis de ambiente `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`.
-
----
-
-Desenvolvido com ❤️ usando React + Supabase.
+4. Acesse em seu navegador via `http://localhost:5173`.
