@@ -10,15 +10,27 @@ Um portal de suporte técnico corporativo de alto desempenho construído com Rea
 - **Autenticação e Segurança:** Supabase Auth com Row Level Security (RLS)
 - **Hospedagem:** Vercel
 
-## ✨ Funcionalidades
+## ✨ Funcionalidades (Features Detalhadas)
 
-- **Dashboard Analítico:** Visualização de métricas, gráficos e listagem de status de chamados em tempo real.
-- **Autenticação Segura:** Login integrado com a plataforma Supabase.
-- **Sistema de Níveis de Acesso (RBAC):** 
-  - **Administrador:** Visualiza, gerencia e tem controle de todos os chamados de forma irrestrita.
-  - **Técnico:** Ambiente isolado. Visualiza apenas os chamados que foram designados a ele (`assigned_to`) ou abertos por ele (`created_by`).
-- **Abertura de Chamados:** Modal ágil direto na interface para abertura de chamados categorizados (TI, Elétrica, Telecom) com definição de nível de prioridade.
-- **SPA (Single Page Application):** Navegação rápida e suave entre painel, relatórios e configurações via React Router.
+O sistema foi arquitetado para resolver o fluxo de trabalho de um Help Desk moderno, separando a camada de coordenação da camada de execução.
+
+### 1. Sistema de Níveis de Acesso (RBAC) e Roteamento Protegido
+- **Mecanismo de Autenticação Real:** Telas totalmente protegidas por um `AuthContext` global no React. Usuários não autenticados são automaticamente redirecionados para o `/login`.
+- **Perfil de Administrador:** Acesso de "visão de águia". O Admin tem acesso à totalidade dos chamados cadastrados no banco de dados, visualiza as estatísticas globais e coordena o fluxo.
+- **Perfil de Técnico:** Acesso estritamente restrito. O técnico realiza login e possui uma visão "limpa", enxergando apenas os tickets que foram criados por ele ou atribuídos (`assigned_to`) à sua conta.
+
+### 2. Abertura e Gerenciamento de Chamados (Ticketing)
+- **Modal de Abertura Expressa:** Um componente pop-up acessível de qualquer lugar do painel, permitindo registrar novos chamados (`#TK-XXXX`) instantaneamente.
+- **Auto-atribuição Inteligente:** Se um usuário nível "Técnico" registrar um chamado pelo Modal, o sistema o define automaticamente como "Técnico Responsável" via ID, garantindo que o chamado já nasça visível em seu painel.
+- **Tipagem Estruturada:** Classificação dinâmica em categorias operacionais reais (`TI / Infraestrutura`, `Elétrica`, `Predial/Civil`, `Telecomunicações`, `Segurança Eletrônica`) e definição de prioridades rígidas (`BAIXA`, `MÉDIA`, `ALTA`, `CRÍTICA`).
+
+### 3. Painel de Controle Analítico (Dashboard)
+- **KPIs em Tempo Real:** Cartões informativos interativos no topo informando o volume de "Chamados Abertos", chamados "Em Atendimento", e métricas de "Concluídos Hoje".
+- **Listagem Tipada:** Tabela principal reativa com identificadores de tickets baseados em hash (ex: `#TK-5002`), chips visuais de prioridade codificados por cores (vermelho para crítico, amarelo para média) e sinalização clara de status.
+
+### 4. Arquitetura SPA (Single Page Application)
+- **Navegação Contínua:** Configuração otimizada com o `react-router-dom` para transição imediata de views (Meus Chamados, Dashboard, Relatórios) sem *reload* da página principal.
+- **Vercel Rewrites:** Configuração implementada de fallback via `vercel.json` para suportar atualizações de página diretas (`/login`) em ambiente de produção sem retornar erros `404 Not Found`.
 
 ## 🔐 Banco de Dados e Segurança (Supabase)
 
@@ -29,7 +41,7 @@ Um portal de suporte técnico corporativo de alto desempenho construído com Rea
 
 ### Políticas de Segurança (Row Level Security - RLS)
 
-A blindagem de dados é feita no banco de dados. Mesmo que um usuário mal intencionado tente forçar uma requisição via API, o Supabase bloqueia:
+A blindagem de dados é feita no banco de dados. Mesmo que um usuário mal intencionado tente forçar uma requisição via API, o Supabase bloqueia a comunicação na raiz:
 - **Regra Admin**: Libera visualização global apenas se existir uma correspondência do UID logado marcando como `admin` na tabela de _roles_.
 - **Regra Técnico**: Libera leitura exclusivamente para as linhas de `tickets` onde o ID do usuário for igual à coluna `assigned_to` ou `created_by`.
 
