@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Header.css';
+import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -7,6 +8,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { user, role, signOut } = useAuth();
 
   return (
     <header className="header">
@@ -47,7 +49,6 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
           <button className="iconBtn" title="Ajuda">
             <span className="material-symbols-outlined">help</span>
           </button>
-          {/* We will implement the dropdown info here later */}
         </div>
 
         <div className="divider"></div>
@@ -58,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             className="profileBtn" 
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
-            <span className="profileName">Ricardo Silva</span>
+            <span className="profileName">{user?.email?.split('@')[0] || 'Usuário'} ({role === 'admin' ? 'Admin' : 'Técnico'})</span>
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               expand_more
             </span>
@@ -67,15 +68,11 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
           {isProfileOpen && (
             <div className="profileDropdown">
               <div className="dropdownItem">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5B7BHemjsrba5Zv1V57oNcU9CBt7Jp5K_DCdDVwjJ1AsCpdjnBLCi3GjDDo5qMOQSYK0Nzm-4448O6bdVxfsS0pNT3NBECPapVOaFVjBimiOcpQntQF7i9xVoSjPW6dyCwHlzKUZ2sMPsoAjcuBZk49CFf7I_1FaVhk0ytFvdzQnchHgcgDyMnDLhkVlnxDWbaJoPGKe1KKDzvgfIeBjtA2SFUn-I4Sz0L6NfHreyt6hz7lOkraoK91maoOD7Du8OPoZ-xRSwNqM"
-                  alt="Perfil"
-                  className="dropdownImg"
-                />
-                <span>Perfil do Usuário</span>
+                <span className="material-symbols-outlined">person</span>
+                <span>{user?.email}</span>
               </div>
               <div className="dropdownDivider"></div>
-              <button className="dropdownItem textError">
+              <button className="dropdownItem textError" onClick={signOut}>
                 <span className="material-symbols-outlined">logout</span>
                 <span>Sair</span>
               </button>
