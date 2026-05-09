@@ -1,13 +1,92 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
 import './MeusChamados.css';
 
+interface Ticket {
+  id: string;
+  ticket_number: string;
+  subject: string;
+  category: string;
+  priority: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const MeusChamados: React.FC = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
+  const fetchTickets = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tickets')
+        .select('*')
+        .order('updated_at', { ascending: false });
+      
+      if (error) {
+        console.error('Erro ao buscar chamados:', error);
+      } else {
+        setTickets(data || []);
+      }
+    } catch (err) {
+      console.error('Erro de conexão:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getPriorityIcon = (priority: string) => {
+    switch(priority.toUpperCase()) {
+      case 'CRÍTICA': return 'priority_high';
+      case 'ALTA': return 'priority_high';
+      case 'MÉDIA': return 'drag_handle';
+      case 'BAIXA': return 'arrow_downward';
+      default: return 'horizontal_rule';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch(priority.toUpperCase()) {
+      case 'CRÍTICA': return 'var(--color-error)';
+      case 'ALTA': return '#F97316';
+      case 'MÉDIA': return 'var(--color-on-tertiary-fixed-variant)';
+      case 'BAIXA': return 'var(--color-on-surface-variant)';
+      default: return 'var(--color-on-surface)';
+    }
+  };
+
+  const getCategoryTagStyle = (category: string) => {
+    if (category.toLowerCase().includes('telecom')) {
+      return { backgroundColor: 'rgba(249,115,22,0.1)', color: '#F97316' };
+    } else if (category.toLowerCase().includes('predial')) {
+      return { backgroundColor: 'var(--color-secondary-container)', color: 'var(--color-on-secondary-container)' };
+    } else if (category.toLowerCase().includes('elétrica')) {
+      return { backgroundColor: 'rgba(245,158,11,0.1)', color: '#F59E0B' };
+    } else if (category.toLowerCase().includes('segurança')) {
+      return { backgroundColor: 'var(--color-tertiary-fixed)', color: 'var(--color-on-tertiary-container)' };
+    }
+    return { backgroundColor: '#e2e8f0', color: '#475569' };
+  };
+
+  const getStatusColor = (status: string) => {
+    const s = status.toLowerCase();
+    if (s.includes('pendente') || s.includes('aberto')) return 'var(--color-error)';
+    if (s.includes('progresso') || s.includes('atendimento')) return '#3b82f6';
+    if (s.includes('validando')) return '#F59E0B';
+    return '#64748b';
+  };
+
   return (
     <div className="meusChamadosContainer">
       <div className="pageHeader">
         <div>
           <h3 className="pageTitle">Meus Chamados Ativos</h3>
-          <p className="pageSubtitle">Você possui 12 chamados pendentes para resolução hoje.</p>
+          <p className="pageSubtitle">Você possui {tickets.filter(t => !t.status.toLowerCase().includes('concluído')).length} chamados pendentes para resolução hoje.</p>
         </div>
         <div className="headerActions">
           <button className="actionBtn btnSecondary">
@@ -39,67 +118,47 @@ const MeusChamados: React.FC = () => {
         </div>
 
         <div className="listBody">
-          <div className="listRow">
-            <div className="ticketId">#TK-4918</div>
-            <div>
-              <p className="ticketSubject">Manutenção Preventiva de Ar Condicionado</p>
-              <p className="ticketMeta">Última atualização: Hoje, às 09:45</p>
-            </div>
-            <div>
-              <span className="tag" style={{ backgroundColor: 'var(--color-secondary-container)', color: 'var(--color-on-secondary-container)' }}>INFRAESTRUTURA</span>
-            </div>
-            <div>
-              <div className="priority" style={{ color: 'var(--color-error)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>priority_high</span> ALTA
+          {loading ? (
+            <div style={{ padding: '20px', textAlign: 'center' }}>Carregando dados...</div>
+          ) : tickets.length === 0 ? (
+            <div style={{ padding: '20px', textAlign: 'center' }}>Nenhum chamado encontrado.</div>
+          ) : (
+            tickets.map((ticket) => (
+              <div className="listRow" key={ticket.id}>
+                <div className="ticketId">{ticket.ticket_number}</div>
+                <div>
+                  <p className="ticketSubject">{ticket.subject}</p>
+                  <p className="ticketMeta">Última atualização: {new Date(ticket.updated_at).toLocaleDateString('pt-BR')} às {new Date(ticket.updated_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
+                <div>
+                  <span className="tag" style={getCategoryTagStyle(ticket.category)}>{ticket.category.toUpperCase()}</span>
+                </div>
+                <div>
+                  <div className="priority" style={{ color: getPriorityColor(ticket.priority) }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>{getPriorityIcon(ticket.priority)}</span> {ticket.priority.toUpperCase()}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div className="dot" style={{ backgroundColor: getStatusColor(ticket.status) }}></div>
+                    <span style={{ fontSize: '13px', fontWeight: 500 }}>{ticket.status}</span>
+                  </div>
+                </div>
+                <div className="rowActions">
+                  <button className="rowActionBtn"><span className="material-symbols-outlined">visibility</span></button>
+                  <button className="rowActionBtn"><span className="material-symbols-outlined">edit_note</span></button>
+                  <button className="rowActionBtn"><span className="material-symbols-outlined">add_comment</span></button>
+                </div>
               </div>
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div className="dot" style={{ backgroundColor: '#3b82f6' }}></div>
-                <span style={{ fontSize: '13px', fontWeight: 500 }}>Em Atendimento</span>
-              </div>
-            </div>
-            <div className="rowActions">
-              <button className="rowActionBtn"><span className="material-symbols-outlined">visibility</span></button>
-              <button className="rowActionBtn"><span className="material-symbols-outlined">edit_note</span></button>
-              <button className="rowActionBtn"><span className="material-symbols-outlined">add_comment</span></button>
-            </div>
-          </div>
-          <div className="listRow">
-            <div className="ticketId">#TK-4922</div>
-            <div>
-              <p className="ticketSubject">Ajuste de Câmera no Estacionamento</p>
-              <p className="ticketMeta">Última atualização: Ontem, 16:30</p>
-            </div>
-            <div>
-              <span className="tag" style={{ backgroundColor: 'var(--color-tertiary-fixed)', color: 'var(--color-on-tertiary-container)' }}>SEGURANÇA</span>
-            </div>
-            <div>
-              <div className="priority" style={{ color: 'var(--color-on-tertiary-fixed-variant)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>drag_handle</span> MÉDIA
-              </div>
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div className="dot" style={{ backgroundColor: 'var(--color-error)' }}></div>
-                <span style={{ fontSize: '13px', fontWeight: 500 }}>Em Aberto</span>
-              </div>
-            </div>
-            <div className="rowActions">
-              <button className="rowActionBtn"><span className="material-symbols-outlined">visibility</span></button>
-              <button className="rowActionBtn"><span className="material-symbols-outlined">edit_note</span></button>
-              <button className="rowActionBtn"><span className="material-symbols-outlined">add_comment</span></button>
-            </div>
-          </div>
+            ))
+          )}
         </div>
 
         <div className="pagination">
-          <span>Exibindo 1-10 de 48 chamados</span>
+          <span>Exibindo {tickets.length} chamados</span>
           <div className="paginationBtns">
             <button className="pageBtn" disabled><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_left</span></button>
             <button className="pageBtn" style={{ backgroundColor: 'var(--color-on-secondary-fixed)', color: 'white' }}>1</button>
-            <button className="pageBtn">2</button>
-            <button className="pageBtn">3</button>
             <button className="pageBtn"><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_right</span></button>
           </div>
         </div>
@@ -117,14 +176,14 @@ const MeusChamados: React.FC = () => {
           <span className="material-symbols-outlined contextIcon">timer</span>
           <div>
             <h4 className="contextTitle">SLA Próximo do Vencimento</h4>
-            <p className="contextDesc">O chamado #TK-4918 vence em 45 minutos. Priorize a atualização do status deste ticket.</p>
+            <p className="contextDesc">Existem tickets com SLA próximo de estourar. Verifique os marcados como CRÍTICA.</p>
           </div>
         </div>
         <div className="contextCard">
           <span className="material-symbols-outlined contextIcon">groups</span>
           <div>
             <h4 className="contextTitle">Plantão Técnico</h4>
-            <p className="contextDesc">Atendimento compartilhado com Maria Oliveira (Infra) e João Santos (Redes) hoje.</p>
+            <p className="contextDesc">Atendimento compartilhado ativo hoje.</p>
           </div>
         </div>
       </div>

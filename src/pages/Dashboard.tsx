@@ -1,7 +1,89 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
 import './Dashboard.css';
 
+interface Ticket {
+  id: string;
+  ticket_number: string;
+  subject: string;
+  category: string;
+  priority: string;
+  status: string;
+  created_at: string;
+}
+
 const Dashboard: React.FC = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
+  const fetchTickets = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tickets')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Erro ao buscar chamados:', error);
+      } else {
+        setTickets(data || []);
+      }
+    } catch (err) {
+      console.error('Erro de conexão:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch(priority.toUpperCase()) {
+      case 'CRÍTICA': return 'var(--color-error)';
+      case 'ALTA': return '#F97316';
+      case 'MÉDIA': return 'var(--color-on-tertiary-fixed-variant)';
+      case 'BAIXA': return 'var(--color-on-surface-variant)';
+      default: return 'var(--color-on-surface)';
+    }
+  };
+
+  const getPriorityBgColor = (priority: string) => {
+    switch(priority.toUpperCase()) {
+      case 'CRÍTICA': return 'var(--color-error)';
+      case 'ALTA': return '#F97316';
+      case 'MÉDIA': return 'var(--color-on-tertiary-fixed-variant)';
+      case 'BAIXA': return 'var(--color-outline)';
+      default: return 'var(--color-outline)';
+    }
+  };
+
+  const getCategoryTagStyle = (category: string) => {
+    if (category.toLowerCase().includes('telecom')) {
+      return { backgroundColor: 'rgba(249,115,22,0.1)', color: '#F97316', border: '1px solid rgba(249,115,22,0.2)' };
+    } else if (category.toLowerCase().includes('predial')) {
+      return { backgroundColor: 'rgba(16,185,129,0.1)', color: '#10B981', border: '1px solid rgba(16,185,129,0.2)' };
+    } else if (category.toLowerCase().includes('elétrica')) {
+      return { backgroundColor: 'rgba(245,158,11,0.1)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.2)' };
+    } else if (category.toLowerCase().includes('segurança')) {
+      return { backgroundColor: 'var(--color-tertiary-fixed)', color: 'var(--color-on-tertiary-container)', border: 'none' };
+    }
+    return { backgroundColor: '#e2e8f0', color: '#475569', border: 'none' };
+  };
+
+  const getStatusStyle = (status: string) => {
+    const s = status.toLowerCase();
+    if (s.includes('pendente') || s.includes('aberto')) {
+      return { backgroundColor: 'var(--color-error-container)', color: 'var(--color-on-error-container)' };
+    } else if (s.includes('progresso') || s.includes('atendimento')) {
+      return { backgroundColor: 'var(--color-secondary-container)', color: 'var(--color-on-secondary-container)' };
+    } else if (s.includes('validando')) {
+      return { backgroundColor: 'var(--color-tertiary-fixed)', color: 'var(--color-on-tertiary-fixed)' };
+    }
+    return { backgroundColor: '#f1f5f9', color: '#64748b' };
+  };
+
   return (
     <>
       <section className="dashboardSection">
@@ -11,7 +93,7 @@ const Dashboard: React.FC = () => {
               <p className="cardTitle">Chamados Abertos</p>
               <span className="material-symbols-outlined cardIcon">folder_open</span>
             </div>
-            <h2 className="cardValue">24</h2>
+            <h2 className="cardValue">{tickets.filter(t => t.status.toLowerCase().includes('aberto') || t.status.toLowerCase().includes('pendente')).length}</h2>
             <div className="cardFooter" style={{ color: 'var(--color-error)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>arrow_upward</span>
               <span>12% em relação à ontem</span>
@@ -22,7 +104,7 @@ const Dashboard: React.FC = () => {
               <p className="cardTitle">Em Atendimento</p>
               <span className="material-symbols-outlined cardIcon">engineering</span>
             </div>
-            <h2 className="cardValue">08</h2>
+            <h2 className="cardValue">{tickets.filter(t => t.status.toLowerCase().includes('progresso') || t.status.toLowerCase().includes('atendimento')).length}</h2>
             <div className="cardFooter" style={{ color: 'var(--color-on-tertiary-container)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>check_circle</span>
               <span>Técnicos em rota</span>
@@ -33,7 +115,7 @@ const Dashboard: React.FC = () => {
               <p className="cardTitle">Aguardando Peças</p>
               <span className="material-symbols-outlined cardIcon">inventory_2</span>
             </div>
-            <h2 className="cardValue">05</h2>
+            <h2 className="cardValue">0</h2>
             <div className="cardFooter" style={{ color: 'var(--color-on-surface-variant)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>schedule</span>
               <span>Previsão: 48h</span>
@@ -44,7 +126,7 @@ const Dashboard: React.FC = () => {
               <p className="cardTitle">Concluídos Hoje</p>
               <span className="material-symbols-outlined cardIcon">task_alt</span>
             </div>
-            <h2 className="cardValue">12</h2>
+            <h2 className="cardValue">0</h2>
             <div className="cardFooter" style={{ color: 'var(--color-secondary)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>trending_up</span>
               <span>Meta diária atingida</span>
@@ -101,101 +183,54 @@ const Dashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {/* Row 1 */}
-              <tr>
-                <td className="ticketId">#TK-4920</td>
-                <td>
-                  <p className="ticketSubject">Falha no Link Dedicado - Filial Sul</p>
-                  <p className="ticketMeta">Aberto há 15 min por Admin</p>
-                </td>
-                <td>
-                  <span className="tag" style={{ backgroundColor: 'rgba(249,115,22,0.1)', color: '#F97316', border: '1px solid rgba(249,115,22,0.2)' }}>Telecom</span>
-                </td>
-                <td>
-                  <div className="priority" style={{ color: 'var(--color-error)' }}>
-                    <span className="dot" style={{ backgroundColor: 'var(--color-error)' }}></span> CRÍTICA
-                  </div>
-                </td>
-                <td>
-                  <span className="status" style={{ backgroundColor: 'var(--color-error-container)', color: 'var(--color-on-error-container)' }}>Pendente</span>
-                </td>
-                <td>
-                  <div className="rowActions">
-                    <button className="rowActionBtn" title="Ver Detalhes">
-                      <span className="material-symbols-outlined">visibility</span>
-                    </button>
-                    <button className="rowActionBtn" title="Atribuir Técnico">
-                      <span className="material-symbols-outlined">person_add</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              {/* Row 2 */}
-              <tr>
-                <td className="ticketId">#TK-4918</td>
-                <td>
-                  <p className="ticketSubject">Manutenção Preventiva de Ar Condicionado</p>
-                  <p className="ticketMeta">Agendado para 14:00</p>
-                </td>
-                <td>
-                  <span className="tag" style={{ backgroundColor: 'rgba(16,185,129,0.1)', color: '#10B981', border: '1px solid rgba(16,185,129,0.2)' }}>Predial</span>
-                </td>
-                <td>
-                  <div className="priority" style={{ color: 'var(--color-on-surface-variant)' }}>
-                    <span className="dot" style={{ backgroundColor: 'var(--color-outline)' }}></span> BAIXA
-                  </div>
-                </td>
-                <td>
-                  <span className="status" style={{ backgroundColor: 'var(--color-secondary-container)', color: 'var(--color-on-secondary-container)' }}>Em Progresso</span>
-                </td>
-                <td>
-                  <div className="rowActions">
-                    <button className="rowActionBtn" title="Ver Detalhes">
-                      <span className="material-symbols-outlined">visibility</span>
-                    </button>
-                    <button className="rowActionBtn" title="Atribuir Técnico">
-                      <span className="material-symbols-outlined">person_add</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              {/* Row 3 */}
-              <tr>
-                <td className="ticketId">#TK-4915</td>
-                <td>
-                  <p className="ticketSubject">Troca de Disjuntor - Quadro Principal</p>
-                  <p className="ticketMeta">Prioridade Alta conforme contrato</p>
-                </td>
-                <td>
-                  <span className="tag" style={{ backgroundColor: 'rgba(245,158,11,0.1)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.2)' }}>Elétrica</span>
-                </td>
-                <td>
-                  <div className="priority" style={{ color: '#F97316' }}>
-                    <span className="dot" style={{ backgroundColor: '#F97316' }}></span> ALTA
-                  </div>
-                </td>
-                <td>
-                  <span className="status" style={{ backgroundColor: 'var(--color-tertiary-fixed)', color: 'var(--color-on-tertiary-fixed)' }}>Validando</span>
-                </td>
-                <td>
-                  <div className="rowActions">
-                    <button className="rowActionBtn" title="Ver Detalhes">
-                      <span className="material-symbols-outlined">visibility</span>
-                    </button>
-                    <button className="rowActionBtn" title="Atribuir Técnico">
-                      <span className="material-symbols-outlined">person_add</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              {loading ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Carregando dados...</td>
+                </tr>
+              ) : tickets.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Nenhum chamado encontrado.</td>
+                </tr>
+              ) : (
+                tickets.map((ticket) => (
+                  <tr key={ticket.id}>
+                    <td className="ticketId">{ticket.ticket_number}</td>
+                    <td>
+                      <p className="ticketSubject">{ticket.subject}</p>
+                      <p className="ticketMeta">Registrado em {new Date(ticket.created_at).toLocaleDateString('pt-BR')}</p>
+                    </td>
+                    <td>
+                      <span className="tag" style={getCategoryTagStyle(ticket.category)}>{ticket.category}</span>
+                    </td>
+                    <td>
+                      <div className="priority" style={{ color: getPriorityColor(ticket.priority) }}>
+                        <span className="dot" style={{ backgroundColor: getPriorityBgColor(ticket.priority) }}></span> {ticket.priority}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="status" style={getStatusStyle(ticket.status)}>{ticket.status}</span>
+                    </td>
+                    <td>
+                      <div className="rowActions">
+                        <button className="rowActionBtn" title="Ver Detalhes">
+                          <span className="material-symbols-outlined">visibility</span>
+                        </button>
+                        <button className="rowActionBtn" title="Atribuir Técnico">
+                          <span className="material-symbols-outlined">person_add</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
         <div className="pagination">
-          <span>Exibindo 3 de 42 chamados ativos</span>
+          <span>Exibindo {tickets.length} chamados</span>
           <div className="paginationBtns">
             <button className="pageBtn" disabled>Anterior</button>
-            <button className="pageBtn">Próximo</button>
+            <button className="pageBtn" disabled>Próximo</button>
           </div>
         </div>
       </section>
